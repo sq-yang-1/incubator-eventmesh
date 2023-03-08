@@ -17,13 +17,13 @@
 # under the License.
 #
 
-FROM centos7-jdk8:latest
+FROM artifactory.dep.devops.cmit.cloud:20101/tools/base-images/openjdk:1.8.0_345
 
 MAINTAINER mikexue mike_xwm@126.com
 
 WORKDIR /data
 RUN mkdir /data/app
-ADD EventMesh_1.3.0-release.tar.gz  /data/app/eventmesh
+ADD incubator-eventmesh-1.7.0-release.tar.gz  /data/app/eventmesh
 WORKDIR /data/app/eventmesh/bin
 
 EXPOSE 10000

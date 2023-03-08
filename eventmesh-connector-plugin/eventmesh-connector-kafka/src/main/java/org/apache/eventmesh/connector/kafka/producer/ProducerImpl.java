@@ -17,14 +17,15 @@
 
 package org.apache.eventmesh.connector.kafka.producer;
 
+import io.cloudevents.core.CloudEventUtils;
 import org.apache.eventmesh.api.RequestReplyCallback;
 import org.apache.eventmesh.api.SendCallback;
+import org.apache.eventmesh.api.SendResult;
 import org.apache.eventmesh.api.exception.ConnectorRuntimeException;
 
+import org.apache.eventmesh.api.exception.OnExceptionContext;
 import org.apache.kafka.clients.admin.Admin;
-import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.ProducerConfig;
-import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.clients.producer.*;
 import org.apache.kafka.common.serialization.StringSerializer;
 
 import java.util.Properties;
@@ -110,9 +111,37 @@ public class ProducerImpl {
 
     public void sendAsync(CloudEvent cloudEvent, SendCallback sendCallback) {
         try {
-            this.producer.send(new ProducerRecord<>(cloudEvent.getSubject(), cloudEvent));
+            this.producer.send(new ProducerRecord<>(cloudEvent.getSubject(), cloudEvent), (metadata, exception) -> {
+                if (exception != null) {
+                    ConnectorRuntimeException onsEx = new ConnectorRuntimeException(exception.getMessage(), exception);
+                    OnExceptionContext context = new OnExceptionContext();
+                    context.setTopic(cloudEvent.getSubject());
+                    context.setException(onsEx);
+                    sendCallback.onException(context);
+                } else {
+                    SendResult sendResult = new SendResult();
+                    sendResult.setTopic(cloudEvent.getSubject());
+                    sendResult.setMessageId(cloudEvent.getId());
+                    sendCallback.onSuccess(sendResult);
+                }
+            });
         } catch (Exception e) {
             log.error(String.format("Send message oneway Exception, %s", cloudEvent), e);
         }
     }
+
+    /*private Callback sendCallbackConvert(final SendCallback sendCallback) {
+        Callback kafkaSendCallback =
+                new Callback() {
+                    @Override
+                    public void onCompletion(RecordMetadata metadata, Exception exception) {
+                        if (null==exception){
+                            SendResult sendResult = new SendResult();
+                            sendResult.setTopic(metadata.topic());
+                            sendCallback.onSuccess(sendResult);
+                        }
+                    }
+                };
+        return kafkaSendCallback;
+    }*/
 }

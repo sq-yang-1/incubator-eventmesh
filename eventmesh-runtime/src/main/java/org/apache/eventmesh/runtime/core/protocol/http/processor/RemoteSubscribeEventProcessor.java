@@ -163,13 +163,13 @@ public class RemoteSubscribeEventProcessor extends AbstractEventProcessor implem
 
         // validate URL
         try {
-            if (!IPUtils.isValidDomainOrIp(url, eventMeshHTTPServer.getEventMeshHttpConfiguration().eventMeshIpv4BlackList,
+            /*if (!IPUtils.isValidDomainOrIp(url, eventMeshHTTPServer.getEventMeshHttpConfiguration().eventMeshIpv4BlackList,
                 eventMeshHTTPServer.getEventMeshHttpConfiguration().eventMeshIpv6BlackList)) {
                 httpLogger.error("subscriber url {} is not valid", url);
                 handlerSpecific.sendErrorResponse(EventMeshRetCode.EVENTMESH_PROTOCOL_BODY_ERR, responseHeaderMap,
                     responseBodyMap, null);
                 return;
-            }
+            }*/
         } catch (Exception e) {
             httpLogger.error("subscriber url {} is not valid, error {}", url, e.getMessage());
             handlerSpecific.sendErrorResponse(EventMeshRetCode.EVENTMESH_PROTOCOL_BODY_ERR, responseHeaderMap,

@@ -89,7 +89,7 @@ public class AsyncPublishInstance {
                 eventMeshHttpProducer.publish(event);
                 log.info("publish event success content: {}", content);
             }
-            Thread.sleep(30000);
+            Thread.sleep(3000);
         }
     }
 }

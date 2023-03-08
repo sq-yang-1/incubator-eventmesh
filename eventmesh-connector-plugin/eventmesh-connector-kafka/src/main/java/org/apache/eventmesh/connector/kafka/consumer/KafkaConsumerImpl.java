@@ -21,6 +21,7 @@ import org.apache.eventmesh.api.AbstractContext;
 import org.apache.eventmesh.api.EventListener;
 import org.apache.eventmesh.api.consumer.Consumer;
 
+import org.apache.eventmesh.connector.kafka.config.ConfigurationWrapper;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 
 import java.util.List;
@@ -35,7 +36,7 @@ public class KafkaConsumerImpl implements Consumer {
     public synchronized void init(Properties props) throws Exception {
         String consumerGroup = props.getProperty("consumerGroup");
         // Other config props
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, ConfigurationWrapper.getProp("eventMesh.server.kafka.namesrvAddr"));
 
         props.put(ConsumerConfig.GROUP_ID_CONFIG, consumerGroup);
         consumer = new ConsumerImpl(props);

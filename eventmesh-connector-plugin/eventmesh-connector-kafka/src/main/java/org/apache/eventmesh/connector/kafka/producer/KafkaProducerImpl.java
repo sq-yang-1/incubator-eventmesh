@@ -21,6 +21,8 @@ import org.apache.eventmesh.api.RequestReplyCallback;
 import org.apache.eventmesh.api.SendCallback;
 import org.apache.eventmesh.api.producer.Producer;
 
+import org.apache.eventmesh.connector.kafka.config.ClientConfiguration;
+import org.apache.eventmesh.connector.kafka.config.ConfigurationWrapper;
 import org.apache.kafka.clients.producer.ProducerConfig;
 
 import java.util.Properties;
@@ -33,7 +35,7 @@ public class KafkaProducerImpl implements Producer {
 
     @Override
     public synchronized void init(Properties keyValue) {
-        keyValue.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+        keyValue.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, ConfigurationWrapper.getProp("eventMesh.server.kafka.namesrvAddr"));
         this.producer = new ProducerImpl(keyValue);
     }
 

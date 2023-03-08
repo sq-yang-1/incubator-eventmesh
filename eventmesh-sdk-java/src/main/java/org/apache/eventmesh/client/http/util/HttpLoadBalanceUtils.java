@@ -74,10 +74,10 @@ public class HttpLoadBalanceUtils {
 
         List<Weight<String>> eventMeshAddrWeightList = new ArrayList<>();
         for (String eventMeshAddrWight : eventMeshAddrs) {
-            if (!IP_PORT_WEIGHT_PATTERN.matcher(eventMeshAddrWight).matches()) {
+            /*if (!IP_PORT_WEIGHT_PATTERN.matcher(eventMeshAddrWight).matches()) {
                 throw new EventMeshException(
                         String.format("liteEventMeshAddr:%s is not illegal", eventMeshHttpClientConfig.getLiteEventMeshAddr()));
-            }
+            }*/
             int splitIndex = eventMeshAddrWight.lastIndexOf(":");
             Weight<String> weight = new Weight<>(
                     eventMeshAddrWight.substring(0, splitIndex),
@@ -97,10 +97,10 @@ public class HttpLoadBalanceUtils {
 
         List<String> eventMeshAddrList = new ArrayList<>();
         for (String eventMeshAddr : eventMeshAddrs) {
-            if (!IP_PORT_PATTERN.matcher(eventMeshAddr).matches()) {
+            /*if (!IP_PORT_PATTERN.matcher(eventMeshAddr).matches()) {
                 throw new EventMeshException(
                         String.format("liteEventMeshAddr:%s is not illegal", eventMeshHttpClientConfig.getLiteEventMeshAddr()));
-            }
+            }*/
             eventMeshAddrList.add(eventMeshAddr);
         }
         return eventMeshAddrList;

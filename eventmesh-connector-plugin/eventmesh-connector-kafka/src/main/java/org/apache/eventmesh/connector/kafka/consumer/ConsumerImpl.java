@@ -35,9 +35,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.cloudevents.CloudEvent;
 import io.cloudevents.kafka.CloudEventDeserializer;
 
@@ -56,11 +53,11 @@ public class ConsumerImpl {
     private Set<String> topicsSet;
 
     public ConsumerImpl(final Properties properties) {
+        // Setting the ClassLoader to null is necessary for Kafka consumer configuration
         final ClassLoader original = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(null);
+        
         Properties props = new Properties();
-
-        // Other config props
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, properties.getProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG));
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, CloudEventDeserializer.class);
@@ -72,6 +69,7 @@ public class ConsumerImpl {
         kafkaConsumerRunner = new KafkaConsumerRunner(this.kafkaConsumer);
         executorService = Executors.newFixedThreadPool(10);
         topicsSet = new HashSet<>();
+
         Thread.currentThread().setContextClassLoader(original);
     }
 
@@ -88,7 +86,9 @@ public class ConsumerImpl {
 
     public synchronized void shutdown() {
         if (this.started.compareAndSet(true, false)) {
-            this.kafkaConsumer.close();
+            // Shutdown the executor and interrupt any running tasks
+            kafkaConsumerRunner.shutdown();
+            executorService.shutdown();
         }
     }
 
@@ -115,7 +115,7 @@ public class ConsumerImpl {
         } catch (Exception e) {
             log.error("Error while subscribing the Kafka consumer to topic: ", e);
             throw new ConnectorRuntimeException(
-                    String.format("Kafka consumer can't attach to %s.", topic));
+                String.format("Kafka consumer can't attach to %s.", topic));
         }
     }
 

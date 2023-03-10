@@ -20,8 +20,8 @@ package org.apache.eventmesh.connector.kafka.consumer;
 import org.apache.eventmesh.api.AbstractContext;
 import org.apache.eventmesh.api.EventListener;
 import org.apache.eventmesh.api.consumer.Consumer;
+import org.apache.eventmesh.connector.kafka.config.ClientConfiguration;
 
-import org.apache.eventmesh.connector.kafka.config.ConfigurationWrapper;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 
 import java.util.List;
@@ -29,15 +29,23 @@ import java.util.Properties;
 
 import io.cloudevents.CloudEvent;
 
+//@Config(field = "clientConfiguration")
 public class KafkaConsumerImpl implements Consumer {
+
     private ConsumerImpl consumer;
+
+    /**
+     * Unified configuration class corresponding to kafka-client.properties
+     */
+//    private ClientConfiguration clientConfiguration;
 
     @Override
     public synchronized void init(Properties props) throws Exception {
+        String namesrvAddr = "10.34.61.100:9092";
         String consumerGroup = props.getProperty("consumerGroup");
-        // Other config props
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, ConfigurationWrapper.getProp("eventMesh.server.kafka.namesrvAddr"));
 
+        // Other config props
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, namesrvAddr);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, consumerGroup);
         consumer = new ConsumerImpl(props);
     }

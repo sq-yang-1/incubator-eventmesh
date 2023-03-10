@@ -17,24 +17,23 @@
 
 package org.apache.eventmesh.connector.kafka.producer;
 
-import io.cloudevents.core.CloudEventUtils;
 import org.apache.eventmesh.api.RequestReplyCallback;
 import org.apache.eventmesh.api.SendCallback;
 import org.apache.eventmesh.api.SendResult;
 import org.apache.eventmesh.api.exception.ConnectorRuntimeException;
-
 import org.apache.eventmesh.api.exception.OnExceptionContext;
+
 import org.apache.kafka.clients.admin.Admin;
-import org.apache.kafka.clients.producer.*;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.StringSerializer;
 
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import io.cloudevents.CloudEvent;
 import io.cloudevents.kafka.CloudEventSerializer;
@@ -44,6 +43,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @SuppressWarnings("deprecation")
 public class ProducerImpl {
+
     private KafkaProducer<String, CloudEvent> producer;
     Properties properties;
 
@@ -82,7 +82,7 @@ public class ProducerImpl {
 
     public void send(CloudEvent cloudEvent) {
         try {
-            this.producer.send(new ProducerRecord<>(cloudEvent.getSubject(), cloudEvent));
+            this.producer.send(new ProducerRecord<>(Objects.requireNonNull(cloudEvent.getSubject()), cloudEvent));
         } catch (Exception e) {
             log.error(String.format("Send message oneway Exception, %s", cloudEvent), e);
         }
@@ -129,19 +129,4 @@ public class ProducerImpl {
             log.error(String.format("Send message oneway Exception, %s", cloudEvent), e);
         }
     }
-
-    /*private Callback sendCallbackConvert(final SendCallback sendCallback) {
-        Callback kafkaSendCallback =
-                new Callback() {
-                    @Override
-                    public void onCompletion(RecordMetadata metadata, Exception exception) {
-                        if (null==exception){
-                            SendResult sendResult = new SendResult();
-                            sendResult.setTopic(metadata.topic());
-                            sendCallback.onSuccess(sendResult);
-                        }
-                    }
-                };
-        return kafkaSendCallback;
-    }*/
 }

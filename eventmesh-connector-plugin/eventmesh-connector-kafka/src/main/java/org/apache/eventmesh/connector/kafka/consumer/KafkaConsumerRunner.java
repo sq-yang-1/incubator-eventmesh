@@ -67,7 +67,6 @@ public class KafkaConsumerRunner implements Runnable {
                     continue;
                 }
                 ConsumerRecords<String, CloudEvent> records = consumer.poll(Duration.ofMillis(10000));
-                System.out.println("拉取消息数:" + records.count());
                 // Handle new records
                 records.forEach(rec -> {
                     try {
@@ -80,7 +79,7 @@ public class KafkaConsumerRunner implements Runnable {
                                     case CommitMessage:
                                         // update offset
                                         log.info("message commit, topic: {}, current offset:{}", topicName,
-                                                rec.offset());
+                                            rec.offset());
                                         break;
                                     case ReconsumeLater:
                                         // don't update offset
@@ -102,7 +101,7 @@ public class KafkaConsumerRunner implements Runnable {
                     }
                 });
             }
-        } catch (WakeupException e) {
+        } catch (Exception e) {
             // Ignore exception if closing
             if (!closed.get()) {
                 throw e;

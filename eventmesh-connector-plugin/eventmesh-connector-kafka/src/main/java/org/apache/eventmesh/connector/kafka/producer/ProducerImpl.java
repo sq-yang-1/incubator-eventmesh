@@ -17,6 +17,8 @@
 
 package org.apache.eventmesh.connector.kafka.producer;
 
+import io.cloudevents.core.message.Encoding;
+import io.cloudevents.jackson.JsonFormat;
 import org.apache.eventmesh.api.RequestReplyCallback;
 import org.apache.eventmesh.api.SendCallback;
 import org.apache.eventmesh.api.SendResult;
@@ -29,9 +31,7 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.StringSerializer;
 
-import java.util.Objects;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -39,6 +39,9 @@ import io.cloudevents.CloudEvent;
 import io.cloudevents.kafka.CloudEventSerializer;
 
 import lombok.extern.slf4j.Slf4j;
+
+import static io.cloudevents.kafka.CloudEventSerializer.ENCODING_CONFIG;
+import static io.cloudevents.kafka.CloudEventSerializer.EVENT_FORMAT_CONFIG;
 
 @Slf4j
 @SuppressWarnings("deprecation")
@@ -55,9 +58,12 @@ public class ProducerImpl {
         properties = new Properties();
         properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
             props.getProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG));
-        properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-        properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, CloudEventSerializer.class);
-        this.producer = new KafkaProducer<>(properties);
+        Map<String, Object> ceSerializerConfigs = new HashMap<>();
+        ceSerializerConfigs.put(ENCODING_CONFIG, Encoding.STRUCTURED);
+        ceSerializerConfigs.put(EVENT_FORMAT_CONFIG, JsonFormat.CONTENT_TYPE);
+        CloudEventSerializer serializer = new CloudEventSerializer();
+        serializer.configure(ceSerializerConfigs, false);
+        this.producer = new KafkaProducer<>(properties,new StringSerializer(),serializer);
     }
 
     public boolean isStarted() {
@@ -111,7 +117,7 @@ public class ProducerImpl {
 
     public void sendAsync(CloudEvent cloudEvent, SendCallback sendCallback) {
         try {
-            this.producer.send(new ProducerRecord<>(cloudEvent.getSubject(), cloudEvent), (metadata, exception) -> {
+            this.producer.send(new ProducerRecord<String,CloudEvent>(cloudEvent.getSubject(), cloudEvent), (metadata, exception) -> {
                 if (exception != null) {
                     ConnectorRuntimeException onsEx = new ConnectorRuntimeException(exception.getMessage(), exception);
                     OnExceptionContext context = new OnExceptionContext();

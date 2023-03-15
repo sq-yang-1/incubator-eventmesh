@@ -101,7 +101,7 @@ public class KafkaConsumerRunner implements Runnable {
                     }
                 });
             }
-        } catch (Exception e) {
+        } catch (WakeupException e) {
             // Ignore exception if closing
             if (!closed.get()) {
                 throw e;

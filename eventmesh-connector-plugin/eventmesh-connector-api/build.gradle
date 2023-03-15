@@ -19,6 +19,7 @@ dependencies {
     api project(":eventmesh-spi")
     implementation project(":eventmesh-common")
     api 'io.cloudevents:cloudevents-core'
+    api 'io.cloudevents:cloudevents-json-jackson:2.2.0'
     api 'io.dropwizard.metrics:metrics-core'
     api "io.dropwizard.metrics:metrics-healthchecks"
     api "io.dropwizard.metrics:metrics-annotation"

@@ -100,7 +100,7 @@ public class IPUtils {
                         continue;
                     }
 
-                    return "127.0.0.1";
+                    return ip;
                 }
 
                 return ipv4Result.get(ipv4Result.size() - 1);

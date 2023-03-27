@@ -22,6 +22,7 @@ import org.apache.eventmesh.api.EventListener;
 import org.apache.eventmesh.api.consumer.Consumer;
 import org.apache.eventmesh.connector.kafka.config.ClientConfiguration;
 
+import org.apache.eventmesh.connector.kafka.config.ConfigurationWrapper;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 
 import java.util.List;
@@ -41,7 +42,7 @@ public class KafkaConsumerImpl implements Consumer {
 
     @Override
     public synchronized void init(Properties props) throws Exception {
-        String namesrvAddr = "10.34.61.100:9092";
+        String namesrvAddr = ConfigurationWrapper.getProp("eventMesh.server.kafka.namesrvAddr");
         String consumerGroup = props.getProperty("consumerGroup");
 
         // Other config props

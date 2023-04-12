@@ -31,6 +31,7 @@ import org.apache.eventmesh.common.protocol.http.common.RequestCode;
 import org.apache.eventmesh.common.utils.IPUtils;
 import org.apache.eventmesh.common.utils.JsonUtils;
 import org.apache.eventmesh.common.utils.RandomStringUtils;
+import org.apache.eventmesh.connector.kafka.config.ConfigurationWrapper;
 import org.apache.eventmesh.protocol.api.ProtocolAdaptor;
 import org.apache.eventmesh.protocol.api.ProtocolPluginFactory;
 import org.apache.eventmesh.runtime.constants.EventMeshConstants;
@@ -117,8 +118,9 @@ public class AsyncHTTPPushRequest extends AbstractHTTPPushRequest {
             handleMsgContext.getEventMeshHTTPServer().getEventMeshHttpConfiguration().eventMeshEnv);
         builder.addHeader(ProtocolKey.EventMeshInstanceKey.EVENTMESHIDC,
             handleMsgContext.getEventMeshHTTPServer().getEventMeshHttpConfiguration().eventMeshIDC);
-
+        String subjectPrefixStr = ConfigurationWrapper.getProp("subject-prefix-str");
         CloudEvent event = CloudEventBuilder.from(handleMsgContext.getEvent())
+                .withSubject(handleMsgContext.getEvent().getSubject().replaceFirst(subjectPrefixStr,""))
             .withExtension(EventMeshConstants.REQ_EVENTMESH2C_TIMESTAMP,
                 String.valueOf(System.currentTimeMillis()))
             .withExtension(EventMeshConstants.RSP_URL, currPushUrl)

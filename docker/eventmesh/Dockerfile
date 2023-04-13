@@ -17,12 +17,14 @@
 # under the License.
 #
 
-FROM artifactory.dep.devops.cmit.cloud:20101/tools/base-images/openjdk:1.8.0_345
+FROM artifactory.dep.devops.cmit.cloud:20101/tools/panji-base-images/euler-openjdk-debug:1.8.0
 
 MAINTAINER mikexue mike_xwm@126.com
 
 WORKDIR /data
 RUN mkdir /data/app
+RUN useradd devops
+USER devops
 ADD incubator-eventmesh-1.7.0-release.tar.gz  /data/app/eventmesh
 WORKDIR /data/app/eventmesh/bin
 

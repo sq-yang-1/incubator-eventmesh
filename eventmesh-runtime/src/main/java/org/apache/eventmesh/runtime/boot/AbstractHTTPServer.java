@@ -28,6 +28,7 @@ import org.apache.eventmesh.common.protocol.http.common.ProtocolVersion;
 import org.apache.eventmesh.common.protocol.http.common.RequestCode;
 import org.apache.eventmesh.common.protocol.http.header.Header;
 import org.apache.eventmesh.common.utils.JsonUtils;
+import org.apache.eventmesh.connector.kafka.config.ConfigurationWrapper;
 import org.apache.eventmesh.runtime.common.Pair;
 import org.apache.eventmesh.runtime.configuration.EventMeshHTTPConfiguration;
 import org.apache.eventmesh.runtime.constants.EventMeshConstants;
@@ -281,7 +282,13 @@ public abstract class AbstractHTTPServer extends AbstractRemotingServer {
             for (InterfaceHttpData parm : decoder.getBodyHttpDatas()) {
                 if (parm.getHttpDataType() == InterfaceHttpData.HttpDataType.Attribute) {
                     Attribute data = (Attribute) parm;
-                    httpRequestBody.put(data.getName(), data.getValue());
+                    // 因开发规范,判断为topic时 拼接前缀
+                    if ("subject".equals(data.getName())){
+                        String subjectPrefixStr = ConfigurationWrapper.getProp("subject-prefix-str");
+                        httpRequestBody.put(data.getName(),subjectPrefixStr + data.getValue());
+                    }else {
+                        httpRequestBody.put(data.getName(), data.getValue());
+                    }
                 }
             }
             decoder.destroy();

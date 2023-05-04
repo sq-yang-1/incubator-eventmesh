@@ -17,6 +17,10 @@
 
 package org.apache.eventmesh.runtime.boot;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
+import io.cloudevents.jackson.JsonFormat;
+import jdk.nashorn.internal.parser.JSONParser;
 import org.apache.eventmesh.common.Constants;
 import org.apache.eventmesh.common.ThreadPoolFactory;
 import org.apache.eventmesh.common.protocol.http.HttpCommand;
@@ -283,9 +287,12 @@ public abstract class AbstractHTTPServer extends AbstractRemotingServer {
                 if (parm.getHttpDataType() == InterfaceHttpData.HttpDataType.Attribute) {
                     Attribute data = (Attribute) parm;
                     // 因开发规范,判断为topic时 拼接前缀
-                    if ("subject".equals(data.getName())){
+                    if ("content".equals(data.getName())){
                         String subjectPrefixStr = ConfigurationWrapper.getProp("subject-prefix-str");
-                        httpRequestBody.put(data.getName(),subjectPrefixStr + data.getValue());
+                        String value = data.getValue();
+                        Map deserialize = JsonUtils.deserialize(value, Map.class);
+                        deserialize.put("subject",subjectPrefixStr + deserialize.get("subject"));
+                        httpRequestBody.put(data.getName(),JsonUtils.serialize(deserialize));
                     }else {
                         httpRequestBody.put(data.getName(), data.getValue());
                     }

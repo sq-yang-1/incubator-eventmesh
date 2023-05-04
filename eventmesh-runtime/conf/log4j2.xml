@@ -16,7 +16,7 @@
   ~ limitations under the License.
   -->
 
-<Configuration status="debug" monitorInterval="60">
+<Configuration status="INFO" monitorInterval="60">
     <Appenders>
         <Console name="console" target="SYSTEM_OUT">
             <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss,SSS} %-5p [%t] %c{1}(%F:%L) - %m%n"/>
@@ -24,7 +24,7 @@
     </Appenders>
 
     <Loggers>
-        <AsyncRoot level="debug" includeLocation="true">
+        <AsyncRoot level="INFO" includeLocation="true">
             <AppenderRef ref="console"/>
         </AsyncRoot>
 
@@ -68,7 +68,7 @@
             <AppenderRef ref="console"/>
         </AsyncLogger>
 
-        <AsyncLogger name="org.apache.eventmesh.runtime" level="debug" additivity="false" includeLocation="true">
+        <AsyncLogger name="org.apache.eventmesh.runtime" level="INFO" additivity="false" includeLocation="true">
             <AppenderRef ref="console"/>
         </AsyncLogger>
 

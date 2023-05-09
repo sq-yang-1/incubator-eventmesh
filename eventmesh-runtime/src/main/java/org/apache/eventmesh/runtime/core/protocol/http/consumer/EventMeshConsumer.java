@@ -134,7 +134,7 @@ public class EventMeshConsumer {
                     if (currentTopicConfig == null) {
                         logger.error("no topicConfig found, consumerGroup:{} topic:{}", consumerGroupConf.getConsumerGroup(), topic);
                         try {
-                            sendMessageBack(event, uniqueId, bizSeqNo);
+                            //sendMessageBack(event, uniqueId, bizSeqNo);
                             eventMeshAsyncConsumeContext.commit(EventMeshAction.CommitMessage);
                             return;
                         } catch (Exception ex) {
@@ -152,7 +152,8 @@ public class EventMeshConsumer {
                         eventMeshAsyncConsumeContext.commit(EventMeshAction.ManualAck);
                     } else {
                         try {
-                            sendMessageBack(event, uniqueId, bizSeqNo);
+                            logger.warn("sendMesssageBack:{} uniqueId:{} bizSeqNo:{}",event,uniqueId,bizSeqNo);
+                            //sendMessageBack(event, uniqueId, bizSeqNo);
                         } catch (Exception e) {
                             //ignore
                         }
@@ -216,7 +217,7 @@ public class EventMeshConsumer {
                         logger.error("no topicConfig found, consumerGroup:{} topic:{}",
                             consumerGroupConf.getConsumerGroup(), topic);
                         try {
-                            sendMessageBack(event, uniqueId, bizSeqNo);
+                            //sendMessageBack(event, uniqueId, bizSeqNo);
                             eventMeshAsyncConsumeContext.commit(EventMeshAction.CommitMessage);
                             return;
                         } catch (Exception ex) {
@@ -239,7 +240,7 @@ public class EventMeshConsumer {
                         eventMeshAsyncConsumeContext.commit(EventMeshAction.ManualAck);
                     } else {
                         try {
-                            sendMessageBack(event, uniqueId, bizSeqNo);
+                            //sendMessageBack(event, uniqueId, bizSeqNo);
                         } catch (Exception e) {
                             //ignore
                         }

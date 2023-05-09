@@ -120,10 +120,11 @@ public class ConsumerImpl {
     public synchronized void unsubscribe(String topic) {
         try {
             // Kafka will unsubscribe *all* topic if calling unsubscribe, so we
-            this.kafkaConsumer.unsubscribe();
-            topicsSet.remove(topic);
-            List<String> topics = new ArrayList<>(topicsSet);
-            this.kafkaConsumer.subscribe(topics);
+            kafkaConsumer.wakeup();
+//            this.kafkaConsumer.unsubscribe();
+            topicsSet.clear();
+//            List<String> topics = new ArrayList<>(topicsSet);
+//            this.kafkaConsumer.subscribe(topics);
         } catch (Exception e) {
             log.error("Error while unsubscribing the Kafka consumer: ", e);
             throw new ConnectorRuntimeException(String.format("kafka push consumer fails to unsubscribe topic: %s", topic));

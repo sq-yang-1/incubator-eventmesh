@@ -41,6 +41,7 @@ dependencies {
     implementation project(":eventmesh-security-plugin:eventmesh-security-auth-http-basic")
     implementation project(":eventmesh-registry-plugin:eventmesh-registry-api")
     implementation project(":eventmesh-admin:eventmesh-admin-rocketmq")
+    implementation project(":eventmesh-sdk-java")
 
 
     implementation project(":eventmesh-registry-plugin:eventmesh-registry-nacos")

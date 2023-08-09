@@ -17,7 +17,11 @@
 
 package org.apache.eventmesh.runtime.core.protocol.http.push;
 
+import org.apache.eventmesh.client.http.conf.EventMeshHttpClientConfig;
+import org.apache.eventmesh.client.http.producer.EventMeshHttpProducer;
+import org.apache.eventmesh.client.tcp.common.EventMeshCommon;
 import org.apache.eventmesh.common.Constants;
+import org.apache.eventmesh.common.exception.EventMeshException;
 import org.apache.eventmesh.common.exception.JsonException;
 import org.apache.eventmesh.common.protocol.ProtocolTransportObject;
 import org.apache.eventmesh.common.protocol.SubscriptionType;
@@ -31,6 +35,7 @@ import org.apache.eventmesh.common.protocol.http.common.RequestCode;
 import org.apache.eventmesh.common.utils.IPUtils;
 import org.apache.eventmesh.common.utils.JsonUtils;
 import org.apache.eventmesh.common.utils.RandomStringUtils;
+import org.apache.eventmesh.common.utils.ThreadUtils;
 import org.apache.eventmesh.connector.kafka.config.ConfigurationWrapper;
 import org.apache.eventmesh.protocol.api.ProtocolAdaptor;
 import org.apache.eventmesh.protocol.api.ProtocolPluginFactory;
@@ -53,15 +58,10 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
+import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -244,6 +244,8 @@ public class AsyncHTTPPushRequest extends AbstractHTTPPushRequest {
                                 handleMsgContext.finish();
                             }
                         }
+                        //将消费响应记录发送kafka由magicapi消费处理
+                        sendResponseMessage(res);
                     } else {
                         eventMeshHTTPServer.metrics.getSummaryMetrics().recordHttpPushMsgFailed();
                         messageLogger.info(
@@ -364,6 +366,40 @@ public class AsyncHTTPPushRequest extends AbstractHTTPPushRequest {
     private void removeWaitingMap(AsyncHTTPPushRequest request) {
         if (waitingRequests.containsKey(request.handleMsgContext.getConsumerGroup())) {
             waitingRequests.get(request.handleMsgContext.getConsumerGroup()).remove(request);
+        }
+    }
+
+    private void sendResponseMessage(String res){
+        String sys = ConfigurationWrapper.getProp("sys");
+        String eventmeshAddr = ConfigurationWrapper.getProp("eventmeshAddr");
+        EventMeshHttpClientConfig eventMeshClientConfig = EventMeshHttpClientConfig.builder()
+                .liteEventMeshAddr(eventmeshAddr)
+                .producerGroup(sys + "_producer_group")
+                .env("env")
+                .idc("idc")
+                .ip(IPUtils.getLocalAddress())
+                .sys(sys)
+                .pid(String.valueOf(ThreadUtils.getPID()))
+                .userName("eventmesh")
+                .password("pass")
+                .build();
+        try (EventMeshHttpProducer eventMeshHttpProducer = new EventMeshHttpProducer(eventMeshClientConfig)) {
+            Map<String, String> content = new HashMap<>();
+            content.put("res", res);
+            CloudEvent event = CloudEventBuilder.v1()
+                    .withId(UUID.randomUUID().toString())
+                    .withSubject("message-consumption-record")
+                    .withSource(URI.create("/"))
+                    .withDataContentType("application/cloudevents+json")
+                    .withType(EventMeshCommon.CLOUD_EVENTS_PROTOCOL_NAME)
+                    .withData(JsonUtils.serialize(content).getBytes(StandardCharsets.UTF_8))
+                    .withExtension(Constants.EVENTMESH_MESSAGE_CONST_TTL, String.valueOf(4 * 1000))
+                    .build();
+            eventMeshHttpProducer.publish(event);
+            messageLogger.info("publish consumption message success content: {}", content);
+        } catch (EventMeshException e) {
+            messageLogger.error("publish consumption message error content:  {}",res);
+            messageLogger.error("publish consumption message error:{}",e.getMessage());
         }
     }
 

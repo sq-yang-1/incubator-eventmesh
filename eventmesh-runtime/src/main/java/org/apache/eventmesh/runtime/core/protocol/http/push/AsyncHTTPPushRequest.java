@@ -245,7 +245,8 @@ public class AsyncHTTPPushRequest extends AbstractHTTPPushRequest {
                             }
                         }
                         //将消费响应记录发送kafka由magicapi消费处理
-                        sendResponseMessage(res);
+                        messageLogger.info("===========================sendResponseMessage=========================");
+                        sendResponseMessage(res,result);
                     } else {
                         eventMeshHTTPServer.metrics.getSummaryMetrics().recordHttpPushMsgFailed();
                         messageLogger.info(
@@ -369,9 +370,25 @@ public class AsyncHTTPPushRequest extends AbstractHTTPPushRequest {
         }
     }
 
-    private void sendResponseMessage(String res){
+    private void sendResponseMessage(String res,ClientRetCode result){
+        messageLogger.info("================res content:{}",res);
+        Map deserialize1 = JsonUtils.deserialize(res, Map.class);
+        String retContent = String.valueOf(deserialize1.get("retContent"));
+        if(!deserialize1.containsKey("retContent") || Objects.isNull(retContent)){
+            return;
+        }
+        Map contentStr = JsonUtils.deserialize(retContent, Map.class);
+        String topic = (String) contentStr.get("subject");
+        String applicationCode = (String) contentStr.get("sys");
+        String data = (String) contentStr.get("data_base64");
+        String traceId = (String) contentStr.get("id");
+        String busiId = "";
+        if(deserialize1.containsKey("busiId")){
+            busiId = (String) deserialize1.get("busiId");
+        }
         String sys = ConfigurationWrapper.getProp("sys");
         String eventmeshAddr = ConfigurationWrapper.getProp("eventmeshAddr");
+        messageLogger.info("==================sys:{}|eventmeshAddr:{}",sys,eventmeshAddr);
         EventMeshHttpClientConfig eventMeshClientConfig = EventMeshHttpClientConfig.builder()
                 .liteEventMeshAddr(eventmeshAddr)
                 .producerGroup(sys + "_producer_group")
@@ -383,9 +400,16 @@ public class AsyncHTTPPushRequest extends AbstractHTTPPushRequest {
                 .userName("eventmesh")
                 .password("pass")
                 .build();
+        messageLogger.info("=============new eventMeshClientConfig success==============");
         try (EventMeshHttpProducer eventMeshHttpProducer = new EventMeshHttpProducer(eventMeshClientConfig)) {
             Map<String, String> content = new HashMap<>();
-            content.put("res", res);
+            content.put("topic", topic);
+            content.put("applicationCode", applicationCode);
+            content.put("data",new String(Base64.getDecoder().decode(data)));
+            content.put("traceId",traceId);
+            content.put("bizId",busiId);
+            content.put("status",String.valueOf(result.getRetCode()));
+            content.put("createTime",String.valueOf(System.currentTimeMillis()));
             CloudEvent event = CloudEventBuilder.v1()
                     .withId(UUID.randomUUID().toString())
                     .withSubject("message-consumption-record")
@@ -395,12 +419,15 @@ public class AsyncHTTPPushRequest extends AbstractHTTPPushRequest {
                     .withData(JsonUtils.serialize(content).getBytes(StandardCharsets.UTF_8))
                     .withExtension(Constants.EVENTMESH_MESSAGE_CONST_TTL, String.valueOf(4 * 1000))
                     .build();
+            messageLogger.info("=========================start=============================");
             eventMeshHttpProducer.publish(event);
+            messageLogger.info("=========================end==============================");
             messageLogger.info("publish consumption message success content: {}", content);
         } catch (EventMeshException e) {
             messageLogger.error("publish consumption message error content:  {}",res);
             messageLogger.error("publish consumption message error:{}",e.getMessage());
         }
+
     }
 
     @Override

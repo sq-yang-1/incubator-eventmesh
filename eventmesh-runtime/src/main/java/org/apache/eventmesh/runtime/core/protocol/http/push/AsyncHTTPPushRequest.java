@@ -258,6 +258,7 @@ public class AsyncHTTPPushRequest extends AbstractHTTPPushRequest {
                             handleMsgContext.finish();
                         }
                     }
+                    messageLogger.info("=====================sendResponseMessageEnd========================");
                     return new Object();
                 }
             });
@@ -382,6 +383,7 @@ public class AsyncHTTPPushRequest extends AbstractHTTPPushRequest {
         String applicationCode = (String) contentStr.get("sys");
         String data = (String) contentStr.get("data_base64");
         String traceId = (String) contentStr.get("id");
+        String version = String.valueOf(contentStr.get("eventsversion"));
         String busiId = "";
         if(deserialize1.containsKey("busiId")){
             busiId = (String) deserialize1.get("busiId");
@@ -402,12 +404,13 @@ public class AsyncHTTPPushRequest extends AbstractHTTPPushRequest {
                 .build();
         messageLogger.info("=============new eventMeshClientConfig success==============");
         try (EventMeshHttpProducer eventMeshHttpProducer = new EventMeshHttpProducer(eventMeshClientConfig)) {
-            Map<String, String> content = new HashMap<>();
+            Map<String, Object> content = new HashMap<>();
             content.put("topic", topic);
             content.put("applicationCode", applicationCode);
-            content.put("data",new String(Base64.getDecoder().decode(data)));
+            content.put("data",JsonUtils.deserialize(new String(Base64.getDecoder().decode(data)),Object.class));
             content.put("traceId",traceId);
             content.put("bizId",busiId);
+            content.put("version",version);
             content.put("status",String.valueOf(result.getRetCode()));
             content.put("createTime",String.valueOf(System.currentTimeMillis()));
             CloudEvent event = CloudEventBuilder.v1()

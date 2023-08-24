@@ -386,7 +386,7 @@ public class AsyncHTTPPushRequest extends AbstractHTTPPushRequest {
         String version = String.valueOf(contentStr.get("eventsversion"));
         String busiId = "";
         if(deserialize1.containsKey("busiId")){
-            busiId = (String) deserialize1.get("busiId");
+            busiId = String.valueOf(deserialize1.get("busiId"));
         }
         String sys = ConfigurationWrapper.getProp("sys");
         String eventmeshAddr = ConfigurationWrapper.getProp("eventmeshAddr");

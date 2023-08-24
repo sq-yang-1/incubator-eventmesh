@@ -380,7 +380,7 @@ public class AsyncHTTPPushRequest extends AbstractHTTPPushRequest {
         }
         Map contentStr = JsonUtils.deserialize(retContent, Map.class);
         String topic = (String) contentStr.get("subject");
-        String applicationCode = (String) contentStr.get("sys");
+        String applicationCode = this.handleMsgContext.getConsumerGroup();
         String data = (String) contentStr.get("data_base64");
         String traceId = (String) contentStr.get("id");
         String version = String.valueOf(contentStr.get("eventsversion"));

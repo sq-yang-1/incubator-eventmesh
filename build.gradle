@@ -275,7 +275,8 @@ subprojects {
                                    "eventmesh-spi",
                                    "eventmesh-webhook-api",
                                    "eventmesh-webhook-admin",
-                                   "eventmesh-webhook-receive"
+                                   "eventmesh-webhook-receive",
+                                   "eventmesh-sdk-java"
                                    ]
         doLast {
             copy {

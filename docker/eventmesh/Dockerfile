@@ -23,15 +23,15 @@ MAINTAINER mikexue mike_xwm@126.com
 
 WORKDIR /data
 RUN mkdir /data/app
-RUN useradd devops
-USER devops
+RUN chmod -R 777 /data/app
 ADD incubator-eventmesh-1.7.0-release.tar.gz  /data/app/eventmesh
 WORKDIR /data/app/eventmesh/bin
-
+RUN chmod -R 777 /data/app/eventmesh
 EXPOSE 10000
 EXPOSE 10105
 
 ENV DOCKER true
-
+RUN useradd devops
+USER devops
 CMD sh start.sh
 

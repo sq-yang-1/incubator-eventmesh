@@ -16,7 +16,7 @@
   ~ limitations under the License.
   -->
 
-<Configuration status="debug" monitorInterval="60">
+<Configuration status="INFO" monitorInterval="60">
     <Appenders>
         <Console name="console" target="SYSTEM_OUT">
             <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss,SSS} %-5p [%t] %c{1}(%F:%L) - %m%n"/>
@@ -24,11 +24,87 @@
     </Appenders>
 
     <Loggers>
-        <AsyncRoot level="debug" includeLocation="true">
+        <AsyncRoot level="info" includeLocation="true">
             <AppenderRef ref="console"/>
         </AsyncRoot>
 
-        <AsyncLogger name="org.apache.eventmesh.client" level="debug" additivity="false" includeLocation="true">
+        <AsyncLogger name="retry" level="info" additivity="false" includeLocation="true">
+            <AppenderRef ref="retryAppender"/>
+        </AsyncLogger>
+
+        <AsyncLogger name="httpMonitor" level="info" additivity="false" includeLocation="true">
+            <AppenderRef ref="console"/>
+        </AsyncLogger>
+
+        <AsyncLogger name="tcpMonitor" level="info" additivity="false" includeLocation="true">
+            <AppenderRef ref="console"/>
+        </AsyncLogger>
+
+        <AsyncLogger name="appMonitor" level="info" additivity="false" includeLocation="true">
+            <AppenderRef ref="console"/>
+        </AsyncLogger>
+
+        <AsyncLogger name="cmd" level="info" additivity="false" includeLocation="true">
+            <AppenderRef ref="console"/>
+        </AsyncLogger>
+
+        <AsyncLogger name="message" level="info" additivity="false" includeLocation="true">
+            <AppenderRef ref="console"/>
+        </AsyncLogger>
+
+        <AsyncLogger name="batchMessage" level="info" additivity="false" includeLocation="true">
+            <AppenderRef ref="console"/>
+        </AsyncLogger>
+
+        <AsyncLogger name="http" level="info" additivity="false" includeLocation="true">
+            <AppenderRef ref="console"/>
+        </AsyncLogger>
+
+        <AsyncLogger name="registry" level="info" additivity="false" includeLocation="true">
+            <AppenderRef ref="console"/>
+        </AsyncLogger>
+
+        <AsyncLogger name="acl" level="info" additivity="false" includeLocation="true">
+            <AppenderRef ref="console"/>
+        </AsyncLogger>
+
+        <AsyncLogger name="org.apache.eventmesh.runtime" level="INFO" additivity="false" includeLocation="true">
+            <AppenderRef ref="console"/>
+        </AsyncLogger>
+
+        <AsyncLogger name="org.apache.rocketmq" level="INFO" additivity="false" includeLocation="true">
+            <AppenderRef ref="console"/>
+        </AsyncLogger>
+
+        <AsyncLogger name="RocketmqClient" level="INFO" additivity="false" includeLocation="true">
+            <AppenderRef ref="console"/>
+        </AsyncLogger>
+
+        <AsyncLogger name="RocketmqRemoting" level="INFO" additivity="false" includeLocation="true">
+            <AppenderRef ref="console"/>
+        </AsyncLogger>
+
+        <AsyncLogger name="RocketmqCommon" level="info" additivity="false" includeLocation="true">
+            <AppenderRef ref="console"/>
+        </AsyncLogger>
+
+        <AsyncLogger name="sessionLogger" level="info" additivity="false" includeLocation="true">
+            <AppenderRef ref="console"/>
+        </AsyncLogger>
+
+        <AsyncLogger name="subscribeLogger" level="info" additivity="false" includeLocation="true">
+            <AppenderRef ref="console"/>
+        </AsyncLogger>
+
+        <AsyncLogger name="org.apache.eventmesh.client" level="info" additivity="false" includeLocation="true">
+            <AppenderRef ref="console"/>
+        </AsyncLogger>
+
+        <AsyncLogger name="org.apache.kafka" level="info" additivity="false" includeLocation="true">
+            <AppenderRef ref="console"/>
+        </AsyncLogger>
+
+        <AsyncLogger name="org.apache.kafka.clients.consumer.internals" level="warn" additivity="false" includeLocation="true">
             <AppenderRef ref="console"/>
         </AsyncLogger>
 

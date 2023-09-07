@@ -80,7 +80,7 @@ public class HTTPMetricsServer {
             } catch (Exception ex) {
                 logger.warn("eventMesh print metrics err", ex);
             }
-        }, 1000, 30 * 1000, TimeUnit.MILLISECONDS);
+        }, 1000, 30 * 10000, TimeUnit.MILLISECONDS);
     
         logger.info("HTTPMetricsServer started......");
     }

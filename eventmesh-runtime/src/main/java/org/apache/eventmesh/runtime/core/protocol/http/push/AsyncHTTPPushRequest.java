@@ -203,6 +203,9 @@ public class AsyncHTTPPushRequest extends AbstractHTTPPushRequest {
             eventMeshHTTPServer.httpClientPool.getClient().execute(builder, new ResponseHandler<Object>() {
                 @Override
                 public Object handleResponse(HttpResponse response) {
+                    messageLogger.info("==========comsumption success :{}",response);
+                    messageLogger.info("==========comsumption success event :{}",handleMsgContext.getEvent());
+                    messageLogger.info("==========comsumption success event data :{}",new String(handleMsgContext.getEvent().getData().toBytes(),StandardCharsets.UTF_8));
                     removeWaitingMap(AsyncHTTPPushRequest.this);
                     long cost = System.currentTimeMillis() - lastPushTime;
                     eventMeshHTTPServer.metrics.getSummaryMetrics().recordHTTPPushTimeCost(cost);
@@ -435,6 +438,7 @@ public class AsyncHTTPPushRequest extends AbstractHTTPPushRequest {
 
     @Override
     public boolean retry() {
+        messageLogger.info("===============message retry===============");
         tryHTTPRequest();
         return true;
     }
